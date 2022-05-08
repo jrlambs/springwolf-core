@@ -32,7 +32,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = {TestChannelScanner.class, DefaultSchemasService.class})
-public class AbstractChannelScannerTest {
+public class AbstractMethodLevelListenerScannerTest {
 
     @Autowired
     private TestChannelScanner channelScanner;

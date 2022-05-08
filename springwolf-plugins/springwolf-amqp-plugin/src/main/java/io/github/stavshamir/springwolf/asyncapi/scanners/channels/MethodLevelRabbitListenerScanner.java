@@ -17,7 +17,7 @@ import java.util.Map;
 
 @Slf4j
 @Service
-public class RabbitChannelsScanner extends AbstractChannelScanner<RabbitListener>
+public class MethodLevelRabbitListenerScanner extends AbstractMethodLevelListenerScanner<RabbitListener>
         implements ChannelsScanner, EmbeddedValueResolverAware {
 
     private StringValueResolver resolver;
