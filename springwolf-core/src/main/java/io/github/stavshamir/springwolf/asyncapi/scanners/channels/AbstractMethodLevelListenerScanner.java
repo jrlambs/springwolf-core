@@ -21,19 +21,15 @@ import static java.util.stream.Collectors.toSet;
 
 @Slf4j
 public abstract class AbstractMethodLevelListenerScanner<T extends Annotation> implements ChannelsScanner {
-
     @Autowired
     private AsyncApiDocket docket;
-
-    @Autowired
-    private ComponentsScanner componentsScanner;
 
     @Autowired
     private SchemasService schemasService;
 
     @Override
     public Map<String, ChannelItem> scan() {
-        return componentsScanner.scanForComponents(docket.getBasePackage()).stream()
+        return docket.getComponentsScanner().scanForComponents().stream()
                 .map(this::getAnnotatedMethods).flatMap(Collection::stream)
                 .map(this::mapMethodToChannel)
                 .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
