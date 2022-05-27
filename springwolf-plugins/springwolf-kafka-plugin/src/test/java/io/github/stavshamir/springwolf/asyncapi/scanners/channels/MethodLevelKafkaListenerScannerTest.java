@@ -33,7 +33,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = {MethodLevelKafkaListenerScanner.class, DefaultSchemasService.class})
+@ContextConfiguration(classes = {
+        MethodLevelKafkaListenerScanner.class,
+        DefaultSchemasService.class,
+        DefaultPayloadTypeResolver.class
+})
 @TestPropertySource(properties = "kafka.topics.test=test-topic")
 public class MethodLevelKafkaListenerScannerTest {
 

@@ -26,6 +26,9 @@ public abstract class AbstractMethodLevelListenerScanner<T extends Annotation> i
     @Autowired
     private SchemasService schemasService;
 
+    @Autowired
+    private PayloadTypeResolver payloadTypeResolver;
+
     @Override
     public Map<String, ChannelItem> scan() {
         return docket.getComponentsScanner().scanForComponents().stream()
@@ -51,12 +54,6 @@ public abstract class AbstractMethodLevelListenerScanner<T extends Annotation> i
      */
     protected abstract Map<String, ? extends OperationBinding> buildOperationBinding(T annotation);
 
-    /**
-     * @param method The listener method.
-     * @return The class object of the payload received by the listener.
-     */
-    protected abstract Class<?> getPayloadType(Method method);
-
     private Set<Method> getAnnotatedMethods(Class<?> type) {
         Class<T> annotationClass = getListenerAnnotationClass();
         log.debug("Scanning class \"{}\" for @\"{}\" annotated methods", type.getName(), annotationClass.getName());
@@ -76,7 +73,7 @@ public abstract class AbstractMethodLevelListenerScanner<T extends Annotation> i
         String channelName = getChannelName(annotation);
 
         Map<String, ? extends OperationBinding> operationBinding = buildOperationBinding(annotation);
-        Class<?> payload = getPayloadType(method);
+        Class<?> payload = payloadTypeResolver.resolvePayloadType(method);
         ChannelItem channel = buildChannel(payload, operationBinding);
 
         return Maps.immutableEntry(channelName, channel);

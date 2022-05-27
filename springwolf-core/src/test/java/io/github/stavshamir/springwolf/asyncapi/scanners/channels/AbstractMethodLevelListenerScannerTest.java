@@ -31,7 +31,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = {TestChannelScanner.class, DefaultSchemasService.class})
+@ContextConfiguration(classes = {
+        TestChannelScanner.class,
+        DefaultSchemasService.class,
+        DefaultPayloadTypeResolver.class
+})
 public class AbstractMethodLevelListenerScannerTest {
 
     @Autowired
