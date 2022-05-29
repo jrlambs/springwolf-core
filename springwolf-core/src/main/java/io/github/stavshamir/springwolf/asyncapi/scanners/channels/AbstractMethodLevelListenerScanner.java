@@ -50,7 +50,7 @@ public abstract class AbstractMethodLevelListenerScanner<T extends Annotation> i
 
     /**
      * @param annotation An instance of a listener annotation.
-     * @return A map containing an operation binding pointed to by the the protocol binding name.
+     * @return A map containing an operation binding pointed to by the protocol binding name.
      */
     protected abstract Map<String, ? extends OperationBinding> buildOperationBinding(T annotation);
 

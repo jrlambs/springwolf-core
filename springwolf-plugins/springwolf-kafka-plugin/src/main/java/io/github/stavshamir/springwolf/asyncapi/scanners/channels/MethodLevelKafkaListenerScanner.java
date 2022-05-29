@@ -1,10 +1,9 @@
 package io.github.stavshamir.springwolf.asyncapi.scanners.channels;
 
 import com.asyncapi.v2.binding.OperationBinding;
-import com.asyncapi.v2.binding.kafka.KafkaOperationBinding;
-import com.google.common.collect.ImmutableMap;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.EmbeddedValueResolverAware;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
@@ -21,6 +20,9 @@ import static java.util.stream.Collectors.toList;
 @RequiredArgsConstructor
 public class MethodLevelKafkaListenerScanner extends AbstractMethodLevelListenerScanner<KafkaListener>
         implements ChannelsScanner, EmbeddedValueResolverAware {
+
+    @Autowired
+    private KafkaOperationBindingMapper operationBindingMapper;
 
     private StringValueResolver resolver;
 
@@ -46,17 +48,7 @@ public class MethodLevelKafkaListenerScanner extends AbstractMethodLevelListener
 
     @Override
     protected Map<String, ? extends OperationBinding> buildOperationBinding(KafkaListener annotation) {
-        String groupId = resolver.resolveStringValue(annotation.groupId());
-        if (groupId == null || groupId.isEmpty()) {
-            log.debug("No group ID found for this listener");
-            groupId = null;
-        } else {
-            log.debug("Found group id: {}", groupId);
-        }
-
-        KafkaOperationBinding binding = new KafkaOperationBinding();
-        binding.setGroupId(groupId);
-        return ImmutableMap.of("kafka", binding);
+        return operationBindingMapper.mapToOperationBinding(annotation);
     }
 
 }

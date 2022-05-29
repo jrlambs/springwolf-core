@@ -1,7 +1,6 @@
 package io.github.stavshamir.springwolf.asyncapi.scanners.channels;
 
 import com.asyncapi.v2.binding.OperationBinding;
-import com.asyncapi.v2.binding.kafka.KafkaOperationBinding;
 import com.asyncapi.v2.model.channel.ChannelItem;
 import com.asyncapi.v2.model.channel.operation.Operation;
 import com.google.common.collect.ImmutableMap;
@@ -41,6 +40,9 @@ public class ClassLevelKafkaListenerScanner
 
     @Autowired
     private PayloadTypeResolver payloadTypeResolver;
+
+    @Autowired
+    private KafkaOperationBindingMapper operationBindingMapper;
 
     @Override
     public void setEmbeddedValueResolver(StringValueResolver resolver) {
@@ -85,18 +87,7 @@ public class ClassLevelKafkaListenerScanner
     }
 
     protected Map<String, ? extends OperationBinding> buildOperationBinding(KafkaListener annotation) {
-        String groupId = resolver.resolveStringValue(annotation.groupId());
-        if (groupId == null || groupId.isEmpty()) {
-            log.debug("No group ID found for this listener");
-            groupId = null;
-        } else {
-            log.debug("Found group id: {}", groupId);
-        }
-
-        KafkaOperationBinding binding = new KafkaOperationBinding();
-        binding.setGroupId(groupId);
-        return ImmutableMap.of("kafka", binding);
-
+        return operationBindingMapper.mapToOperationBinding(annotation);
     }
 
     private Set<Method> getAnnotatedMethods(Class<?> component) {
