@@ -14,7 +14,7 @@ import java.util.Map;
 
 @Slf4j
 @Service
-public class KafkaOperationBindingMapper implements OperationBindingMapper<KafkaListener>, EmbeddedValueResolverAware {
+public class KafkaListenerOperationBindingMapper implements OperationBindingMapper<KafkaListener>, EmbeddedValueResolverAware {
 
     private StringValueResolver resolver;
 

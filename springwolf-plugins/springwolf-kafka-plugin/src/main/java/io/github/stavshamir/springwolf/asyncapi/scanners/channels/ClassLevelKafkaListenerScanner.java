@@ -12,25 +12,24 @@ import io.github.stavshamir.springwolf.schemas.SchemasService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.EmbeddedValueResolverAware;
 import org.springframework.kafka.annotation.KafkaHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringValueResolver;
 
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 import static io.github.stavshamir.springwolf.asyncapi.Constants.ONE_OF;
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ClassLevelKafkaListenerScanner
-        implements ChannelsScanner, EmbeddedValueResolverAware {
-
-    private StringValueResolver resolver;
+public class ClassLevelKafkaListenerScanner implements ChannelsScanner {
 
     @Autowired
     private AsyncApiDocket docket;
@@ -42,12 +41,10 @@ public class ClassLevelKafkaListenerScanner
     private PayloadTypeResolver payloadTypeResolver;
 
     @Autowired
-    private KafkaOperationBindingMapper operationBindingMapper;
+    private KafkaListenerOperationBindingMapper operationBindingMapper;
 
-    @Override
-    public void setEmbeddedValueResolver(StringValueResolver resolver) {
-        this.resolver = resolver;
-    }
+    @Autowired
+    private KafkaListenerChannelNameMapper channelNameMapper;
 
     public Map<String, ChannelItem> scan() {
         return docket.getComponentsScanner().scanForComponents().stream()
@@ -78,12 +75,7 @@ public class ClassLevelKafkaListenerScanner
     }
 
     protected String getChannelName(KafkaListener annotation) {
-        List<String> resolvedTopics = Arrays.stream(annotation.topics())
-                .map(resolver::resolveStringValue)
-                .collect(toList());
-
-        log.debug("Found topics: {}", String.join(", ", resolvedTopics));
-        return resolvedTopics.get(0);
+        return channelNameMapper.mapToChannelName(annotation);
     }
 
     protected Map<String, ? extends OperationBinding> buildOperationBinding(KafkaListener annotation) {

@@ -17,12 +17,12 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = {KafkaOperationBindingMapper.class})
+@ContextConfiguration(classes = {KafkaListenerOperationBindingMapper.class})
 @TestPropertySource(properties = "kafka.groupId=groupId")
-public class KafkaOperationBindingMapperTest {
+public class KafkaListenerOperationBindingMapperTest {
 
     @Autowired
-    private KafkaOperationBindingMapper mapper;
+    private KafkaListenerOperationBindingMapper mapper;
 
     @Test
     public void test_nullGroupId() throws NoSuchMethodException {

@@ -37,7 +37,8 @@ import static org.mockito.Mockito.when;
         MethodLevelKafkaListenerScanner.class,
         DefaultSchemasService.class,
         DefaultPayloadTypeResolver.class,
-        KafkaOperationBindingMapper.class
+        KafkaListenerOperationBindingMapper.class,
+        KafkaListenerChannelNameMapper.class
 })
 @TestPropertySource(properties = "kafka.topics.test=test-topic")
 public class MethodLevelKafkaListenerScannerTest {

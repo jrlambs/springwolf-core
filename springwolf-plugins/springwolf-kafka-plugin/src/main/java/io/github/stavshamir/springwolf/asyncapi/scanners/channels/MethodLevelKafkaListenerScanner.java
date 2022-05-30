@@ -4,32 +4,22 @@ import com.asyncapi.v2.binding.OperationBinding;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.EmbeddedValueResolverAware;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringValueResolver;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
-
-import static java.util.stream.Collectors.toList;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class MethodLevelKafkaListenerScanner extends AbstractMethodLevelListenerScanner<KafkaListener>
-        implements ChannelsScanner, EmbeddedValueResolverAware {
+        implements ChannelsScanner {
 
     @Autowired
-    private KafkaOperationBindingMapper operationBindingMapper;
+    private KafkaListenerOperationBindingMapper operationBindingMapper;
 
-    private StringValueResolver resolver;
-
-    @Override
-    public void setEmbeddedValueResolver(StringValueResolver resolver) {
-        this.resolver = resolver;
-    }
+    @Autowired
+    private KafkaListenerChannelNameMapper channelNameMapper;
 
     @Override
     protected Class<KafkaListener> getListenerAnnotationClass() {
@@ -38,12 +28,7 @@ public class MethodLevelKafkaListenerScanner extends AbstractMethodLevelListener
 
     @Override
     protected String getChannelName(KafkaListener annotation) {
-        List<String> resolvedTopics = Arrays.stream(annotation.topics())
-                .map(resolver::resolveStringValue)
-                .collect(toList());
-
-        log.debug("Found topics: {}", String.join(", ", resolvedTopics));
-        return resolvedTopics.get(0);
+        return channelNameMapper.mapToChannelName(annotation);
     }
 
     @Override
