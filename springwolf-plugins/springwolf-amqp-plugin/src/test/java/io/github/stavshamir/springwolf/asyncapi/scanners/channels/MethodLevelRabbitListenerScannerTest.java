@@ -39,7 +39,9 @@ import static org.mockito.Mockito.when;
 @ContextConfiguration(classes = {
         MethodLevelRabbitListenerScanner.class,
         DefaultSchemasService.class,
-        DefaultPayloadTypeResolver.class
+        DefaultPayloadTypeResolver.class,
+        RabbitListenerOperationBindingMapper.class,
+        RabbitListenerChannelNameMapper.class
 })
 @TestPropertySource(properties = "amqp.queues.test=test-queue")
 public class MethodLevelRabbitListenerScannerTest {
