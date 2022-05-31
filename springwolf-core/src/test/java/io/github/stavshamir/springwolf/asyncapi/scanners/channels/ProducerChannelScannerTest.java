@@ -26,7 +26,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = {ProducerChannelScanner.class, DefaultSchemasService.class})
+@ContextConfiguration(classes = {
+        ProducerChannelScanner.class,
+        DefaultMessageMapper.class,
+        DefaultSchemasService.class
+})
 public class ProducerChannelScannerTest {
 
     @Autowired

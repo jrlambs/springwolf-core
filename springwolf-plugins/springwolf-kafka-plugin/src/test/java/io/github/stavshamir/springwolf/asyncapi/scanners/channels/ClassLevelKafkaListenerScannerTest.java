@@ -38,6 +38,7 @@ import static org.mockito.Mockito.when;
         ClassLevelKafkaListenerScanner.class,
         DefaultSchemasService.class,
         DefaultPayloadTypeResolver.class,
+        DefaultMessageMapper.class,
         KafkaListenerOperationBindingMapper.class,
         KafkaListenerChannelNameMapper.class
 })

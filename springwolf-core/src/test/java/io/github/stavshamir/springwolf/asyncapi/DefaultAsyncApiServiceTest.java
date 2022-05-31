@@ -5,8 +5,8 @@ import com.asyncapi.v2.model.channel.ChannelItem;
 import com.asyncapi.v2.model.info.Info;
 import com.asyncapi.v2.model.server.Server;
 import com.google.common.collect.ImmutableMap;
+import io.github.stavshamir.springwolf.asyncapi.scanners.channels.DefaultMessageMapper;
 import io.github.stavshamir.springwolf.asyncapi.scanners.channels.ProducerChannelScanner;
-import io.github.stavshamir.springwolf.asyncapi.scanners.components.DefaultClassPathComponentsScanner;
 import io.github.stavshamir.springwolf.asyncapi.types.ProducerData;
 import io.github.stavshamir.springwolf.configuration.AsyncApiDocket;
 import io.github.stavshamir.springwolf.schemas.DefaultSchemasService;
@@ -28,7 +28,8 @@ import static org.assertj.core.api.Assertions.assertThat;
         DefaultAsyncApiService.class,
         DefaultChannelsService.class,
         DefaultSchemasService.class,
-        ProducerChannelScanner.class
+        ProducerChannelScanner.class,
+        DefaultMessageMapper.class
 })
 @Import(DefaultAsyncApiServiceTest.DefaultAsyncApiServiceTestConfiguration.class)
 public class DefaultAsyncApiServiceTest {

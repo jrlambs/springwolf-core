@@ -3,21 +3,15 @@ package io.github.stavshamir.springwolf.asyncapi.scanners.channels;
 import com.asyncapi.v2.binding.OperationBinding;
 import com.asyncapi.v2.model.channel.ChannelItem;
 import com.asyncapi.v2.model.channel.operation.Operation;
-import com.google.common.collect.ImmutableMap;
 import io.github.stavshamir.springwolf.asyncapi.types.ProducerData;
-import io.github.stavshamir.springwolf.asyncapi.types.channel.operation.message.Message;
-import io.github.stavshamir.springwolf.asyncapi.types.channel.operation.message.PayloadReference;
 import io.github.stavshamir.springwolf.configuration.AsyncApiDocket;
-import io.github.stavshamir.springwolf.schemas.SchemasService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import static io.github.stavshamir.springwolf.asyncapi.Constants.ONE_OF;
 import static java.util.stream.Collectors.*;
 
 @Slf4j
@@ -26,7 +20,7 @@ import static java.util.stream.Collectors.*;
 public class ProducerChannelScanner implements ChannelsScanner {
 
     private final AsyncApiDocket docket;
-    private final SchemasService schemasService;
+    private final MessageMapper messageMapper;
 
     @Override
     public Map<String, ChannelItem> scan() {
@@ -56,7 +50,7 @@ public class ProducerChannelScanner implements ChannelsScanner {
         Map<String, ? extends OperationBinding> binding = producerDataList.get(0).getBinding();
 
         Operation operation = Operation.builder()
-                .message(getMessageObject(producerDataList))
+                .message(getMessage(producerDataList))
                 .bindings(binding)
                 .build();
 
@@ -65,25 +59,12 @@ public class ProducerChannelScanner implements ChannelsScanner {
                 .build();
     }
 
-    private Object getMessageObject(List<ProducerData> producerDataList) {
-        Set<Message> messages = producerDataList.stream()
-                .map(this::buildMessage)
-                .collect(toSet());
+    private Object getMessage(List<ProducerData> producerDataList) {
+        List<? extends Class<?>> payloadTypes = producerDataList.stream()
+                .map(ProducerData::getPayloadType)
+                .collect(toList());
 
-        return messages.size() == 1
-                ? messages.toArray()[0]
-                : ImmutableMap.of(ONE_OF, messages);
-    }
-
-    private Message buildMessage(ProducerData producerData) {
-        Class<?> payloadType = producerData.getPayloadType();
-        String modelName = schemasService.register(payloadType);
-
-        return Message.builder()
-                .name(payloadType.getName())
-                .title(modelName)
-                .payload(PayloadReference.fromModelName(modelName))
-                .build();
+        return messageMapper.mapToMessage(payloadTypes);
     }
 
 }

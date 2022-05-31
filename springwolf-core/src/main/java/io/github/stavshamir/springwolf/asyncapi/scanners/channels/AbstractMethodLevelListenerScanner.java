@@ -5,9 +5,7 @@ import com.asyncapi.v2.model.channel.ChannelItem;
 import com.asyncapi.v2.model.channel.operation.Operation;
 import com.google.common.collect.Maps;
 import io.github.stavshamir.springwolf.asyncapi.types.channel.operation.message.Message;
-import io.github.stavshamir.springwolf.asyncapi.types.channel.operation.message.PayloadReference;
 import io.github.stavshamir.springwolf.configuration.AsyncApiDocket;
-import io.github.stavshamir.springwolf.schemas.SchemasService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -24,7 +22,7 @@ public abstract class AbstractMethodLevelListenerScanner<T extends Annotation> i
     private AsyncApiDocket docket;
 
     @Autowired
-    private SchemasService schemasService;
+    private MessageMapper messageMapper;
 
     @Autowired
     private PayloadTypeResolver payloadTypeResolver;
@@ -64,7 +62,7 @@ public abstract class AbstractMethodLevelListenerScanner<T extends Annotation> i
     }
 
     private Map.Entry<String, ChannelItem> mapMethodToChannel(Method method) {
-        log.debug("Mapping method \"{}\" to channels", method.getName());
+        log.debug("Mapping method \"{}\" to channel", method.getName());
 
         Class<T> listenerAnnotationClass = getListenerAnnotationClass();
         T annotation = Optional.of(method.getAnnotation(listenerAnnotationClass))
@@ -80,13 +78,7 @@ public abstract class AbstractMethodLevelListenerScanner<T extends Annotation> i
     }
 
     private ChannelItem buildChannel(Class<?> payloadType, Map<String, ? extends OperationBinding> operationBinding) {
-        String modelName = schemasService.register(payloadType);
-
-        Message message = Message.builder()
-                .name(payloadType.getName())
-                .title(modelName)
-                .payload(PayloadReference.fromModelName(modelName))
-                .build();
+        Message message = messageMapper.mapToMessage(payloadType);
 
         Operation operation = Operation.builder()
                 .message(message)

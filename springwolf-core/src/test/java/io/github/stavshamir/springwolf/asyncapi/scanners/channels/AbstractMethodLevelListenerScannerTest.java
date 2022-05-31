@@ -34,7 +34,8 @@ import static org.mockito.Mockito.when;
 @ContextConfiguration(classes = {
         TestChannelScanner.class,
         DefaultSchemasService.class,
-        DefaultPayloadTypeResolver.class
+        DefaultPayloadTypeResolver.class,
+        DefaultMessageMapper.class
 })
 public class AbstractMethodLevelListenerScannerTest {
 

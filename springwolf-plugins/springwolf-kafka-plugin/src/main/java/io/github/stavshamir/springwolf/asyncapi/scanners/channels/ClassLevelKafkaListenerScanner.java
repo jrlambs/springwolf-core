@@ -3,13 +3,8 @@ package io.github.stavshamir.springwolf.asyncapi.scanners.channels;
 import com.asyncapi.v2.binding.OperationBinding;
 import com.asyncapi.v2.model.channel.ChannelItem;
 import com.asyncapi.v2.model.channel.operation.Operation;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import io.github.stavshamir.springwolf.asyncapi.types.channel.operation.message.Message;
-import io.github.stavshamir.springwolf.asyncapi.types.channel.operation.message.PayloadReference;
 import io.github.stavshamir.springwolf.configuration.AsyncApiDocket;
-import io.github.stavshamir.springwolf.schemas.SchemasService;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaHandler;
@@ -17,25 +12,19 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
-import static io.github.stavshamir.springwolf.asyncapi.Constants.ONE_OF;
-import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.*;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class ClassLevelKafkaListenerScanner implements ChannelsScanner {
 
     @Autowired
     private AsyncApiDocket docket;
 
     @Autowired
-    private SchemasService schemasService;
+    private MessageMapper messageMapper;
 
     @Autowired
     private PayloadTypeResolver payloadTypeResolver;
@@ -93,7 +82,7 @@ public class ClassLevelKafkaListenerScanner implements ChannelsScanner {
 
     private ChannelItem buildChannel(Set<Method> methods, Map<String, ? extends OperationBinding> operationBinding) {
         Operation operation = Operation.builder()
-                .message(getMessageObject(methods))
+                .message(buildMessage(methods))
                 .bindings(operationBinding)
                 .build();
 
@@ -102,25 +91,12 @@ public class ClassLevelKafkaListenerScanner implements ChannelsScanner {
                 .build();
     }
 
-    private Object getMessageObject(Set<Method> methods) {
-        Set<Message> messages = methods.stream()
-                .map(this::buildMessage)
-                .collect(toSet());
+    private Object buildMessage(Set<Method> methods) {
+        List<? extends Class<?>> payloadTypes = methods.stream()
+                .map(payloadTypeResolver::resolvePayloadType)
+                .collect(toList());
 
-        return methods.size() == 1
-                ? messages.toArray()[0]
-                : ImmutableMap.of(ONE_OF, messages);
-    }
-
-    private Message buildMessage(Method method) {
-        Class<?> payloadType = payloadTypeResolver.resolvePayloadType(method);
-        String modelName = schemasService.register(payloadType);
-
-        return Message.builder()
-                .name(payloadType.getName())
-                .title(modelName)
-                .payload(PayloadReference.fromModelName(modelName))
-                .build();
+        return messageMapper.mapToMessage(payloadTypes);
     }
 
 }
